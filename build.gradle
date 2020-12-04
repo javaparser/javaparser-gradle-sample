@@ -1,15 +1,55 @@
 plugins {
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
     id 'java'
 }
 
+// See settings.gradle for the project's name
+// This is often your domain name (reversed.)
 group 'com.yourorganization'
+// The version of this project. SNAPSHOT means "we're still working on it"
 version '1.0-SNAPSHOT'
 
+// Tell Gradle we want to use Java 8
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+// Resolve dependencies and plugins using maven central repository.
 repositories {
     mavenCentral()
 }
 
+// Gradle dependencies can also sourced from maven central, using the same coordinates (group/name/version).
 dependencies {
     implementation group: 'com.github.javaparser', name: 'javaparser-core', version: '3.15.21'
     testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+
+// Create a single jar, including all dependencies -- Output to /build/libs/
+// Documentation available at https://github.com/johnrengelman/shadow
+// run this using: gradle shadowJar
+shadowJar {
+    archiveBaseName.set(project.name + '-shadow')
+    archiveClassifier.set('beta')
+    archiveVersion.set(project.version)
+
+    manifest {
+        inheritFrom project.tasks.jar.manifest
+    }
+}
+
+
+// Default jar settings
+// (note that jar won't include dependencies - either add them to the class path, or bulid a shadow / fat jar)
+// run this using: gradle jar
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'JavaParser Gradle Jar Example',
+                'Implementation-Version': version,
+                'Main-Class': 'com.yourorganization.maven_sample.LogicPositivizer'
+    }
+
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }

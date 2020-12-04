@@ -1,2 +1,3 @@
+// The name of this project (actually, the name of the artifact, which is the thing that this project produces. A jar in this case.)
 rootProject.name = 'javaparser-gradle-sample'
 
